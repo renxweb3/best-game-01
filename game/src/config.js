@@ -59,6 +59,49 @@ export const BAT = {
   fleeSpeed: 420,
 };
 
+// The web-spider: a second foe that lays sticky webs on the moonflowers instead
+// of chasing the moth. Slow and avoidable by design — its threat is positional.
+export const SPIDER = {
+  radius: 14,
+  crawlSpeed: 70,
+  webRadius: 55,
+  webLife: 9,
+  webSlow: 0.45,
+  entryDelay: 8,
+  descendTime: 3,
+  drivenOff: 8,
+  knockback: 200,
+  sway: 10,
+  layTime: 1.2,
+  arriveDist: 40,
+};
+
+// The seven-night campaign. Bat speed keeps the verified formula
+// x(1 + 0.12 * (night - 1)); this table adds bat-count scaling, the spider
+// schedule, the web schedule and the mid-night surge. Flowers stay 7 and the
+// dawn stays 90 s every night — the campaign escalates the threats, not the
+// objective, so the loop learned on night 1 is still the loop on night 7.
+export const NIGHTS = {
+  // Hand-tuned per night from multi-seed band data (final-optimization retune
+  // V27b, 2026-11-17): the formula x(1 + 0.12 x (night - 1)) was the V17
+  // starting point, but the band is chaotic across seeds, so the table is the
+  // single source of truth and the formula no longer holds exactly.
+  // 10-seed careful-autopilot band on V27b: n1 10/10, n2 7/10, n3 8/10,
+  // n4 8/10, n5-7 0/10 unblessed (winnable with a blessed run: slow-bats
+  // reaches n5 4/10, n6 1/10). N4 has ONE spider: the second spider was the
+  // N4 bottleneck (n4 4/10 -> 8/10 when removed); the spider ramp is now
+  // n3 1 -> n5 2 -> n6 3. Nights 1-2 untouched by the retune.
+  1: { name: 'the first bloom', batSpeed: 1, batStart: 3, batEnd: 7, spiders: 0, webEvery: 0, maxWebs: 0, surge: false, preview: 'bats quicken' },
+  2: { name: 'the spider spins', batSpeed: 1.12, batStart: 3, batEnd: 6, spiders: 1, webEvery: 7, maxWebs: 2, surge: true, preview: 'one spider, webs every 7 s' },
+  3: { name: 'webs thicken', batSpeed: 1.12, batStart: 3, batEnd: 5, spiders: 1, webEvery: 6, maxWebs: 3, surge: true, preview: 'one spider, webs every 6 s' },
+  4: { name: 'the bats descend', batSpeed: 1.18, batStart: 4, batEnd: 6, spiders: 1, webEvery: 6, maxWebs: 3, surge: true, preview: 'bats quicken, webs every 6 s' },
+  5: { name: 'the garden stirs', batSpeed: 1.42, batStart: 5, batEnd: 8, spiders: 2, webEvery: 5, maxWebs: 4, surge: true, preview: 'two spiders, webs every 5 s' },
+  6: { name: 'webs everywhere', batSpeed: 1.54, batStart: 5, batEnd: 8, spiders: 3, webEvery: 5, maxWebs: 4, surge: true, preview: 'three spiders, webs every 5 s' },
+  7: { name: 'the last dawn', batSpeed: 1.66, batStart: 6, batEnd: 9, spiders: 3, webEvery: 4.5, maxWebs: 5, surge: true, preview: 'the final night' },
+};
+
+export const CAMPAIGN_KEY = 'mothlight.campaign.v1';
+
 export const PARTICLES = {
   sparkle: 14,
   petals: 26,

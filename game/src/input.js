@@ -7,6 +7,14 @@ export const ACTION_PAUSE = 2;
 export const ACTION_RESTART = 4;
 export const ACTION_MUTE = 8;
 export const ACTION_DASH = 16;
+export const ACTION_PICK_1 = 32;
+export const ACTION_PICK_2 = 64;
+export const ACTION_PICK_3 = 128;
+export const ACTION_DRAFT_LEFT = 256;
+export const ACTION_DRAFT_RIGHT = 512;
+export const ACTION_CLICK = 1024;
+export const ACTION_HELP = 2048;
+export const ACTION_QUIT = 4096;
 
 const UP = new Set(['ArrowUp', 'KeyW']);
 const DOWN = new Set(['ArrowDown', 'KeyS']);
@@ -16,6 +24,16 @@ const CONFIRM = new Set(['Space', 'Enter']);
 const PAUSE = new Set(['KeyP', 'Escape']);
 const RESTART = new Set(['KeyR']);
 const MUTE = new Set(['KeyM']);
+const HELP = new Set(['KeyH']);
+const QUIT = new Set(['KeyQ']);
+const PICK = new Map([
+  ['Digit1', ACTION_PICK_1],
+  ['Numpad1', ACTION_PICK_1],
+  ['Digit2', ACTION_PICK_2],
+  ['Numpad2', ACTION_PICK_2],
+  ['Digit3', ACTION_PICK_3],
+  ['Numpad3', ACTION_PICK_3],
+]);
 
 export function createInput(canvas, toField) {
   const keys = { up: false, down: false, left: false, right: false };
@@ -25,9 +43,17 @@ export function createInput(canvas, toField) {
   function mark(code, event) {
     if (UP.has(code)) keys.up = true;
     else if (DOWN.has(code)) keys.down = true;
-    else if (LEFT.has(code)) keys.left = true;
-    else if (RIGHT.has(code)) keys.right = true;
-    else if (CONFIRM.has(code)) {
+    else if (LEFT.has(code)) {
+      keys.left = true;
+      // Arrow keys also move the draft highlight (only the draft screen
+      // reads that flag; steering ignores it).
+      if (!event.repeat) actions |= ACTION_DRAFT_LEFT;
+    } else if (RIGHT.has(code)) {
+      keys.right = true;
+      if (!event.repeat) actions |= ACTION_DRAFT_RIGHT;
+    } else if (PICK.has(code)) {
+      if (!event.repeat) actions |= PICK.get(code);
+    } else if (CONFIRM.has(code)) {
       if (!event.repeat) {
         actions |= ACTION_CONFIRM;
         // Space is also the dash: a tap while flying bursts forward.
@@ -39,6 +65,10 @@ export function createInput(canvas, toField) {
       if (!event.repeat) actions |= ACTION_RESTART;
     } else if (MUTE.has(code)) {
       if (!event.repeat) actions |= ACTION_MUTE;
+    } else if (HELP.has(code)) {
+      if (!event.repeat) actions |= ACTION_HELP;
+    } else if (QUIT.has(code)) {
+      if (!event.repeat) actions |= ACTION_QUIT;
     } else return false;
     return true;
   }
@@ -72,7 +102,7 @@ export function createInput(canvas, toField) {
   canvas.addEventListener('pointerdown', (event) => {
     trackPointer(event);
     pointer.down = true;
-    actions |= ACTION_CONFIRM | ACTION_DASH;
+    actions |= ACTION_CONFIRM | ACTION_DASH | ACTION_CLICK;
   });
   canvas.addEventListener('pointerup', () => {
     pointer.down = false;

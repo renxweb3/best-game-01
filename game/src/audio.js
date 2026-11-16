@@ -119,6 +119,37 @@ export function createAudio() {
     scare() {
       tone({ type: 'square', from: 880, to: 220, length: 0.12, volume: 0.08 });
     },
+    // The spider's sounds: a low pluck when a web is laid, a sticky thwip on
+    // entering one, a bright snap when a web is torn, and a lower cousin of
+    // the scare when a spider is driven off.
+    web() {
+      tone({ type: 'triangle', from: 220, to: 110, length: 0.3, volume: 0.15 });
+    },
+    stuck() {
+      noise({ length: 0.1, volume: 0.15, lowpass: 300 });
+    },
+    tear() {
+      tone({ type: 'square', from: 660, to: 990, length: 0.08, volume: 0.12 });
+    },
+    spiderScare() {
+      tone({ type: 'square', from: 660, to: 180, length: 0.14, volume: 0.07 });
+    },
+    // The mid-night bat surge: a low two-note minor fall.
+    surge() {
+      tone({ type: 'sine', from: 330, to: 262, length: 0.25, volume: 0.15 });
+      tone({ type: 'sine', from: 262, to: 196, at: 0.2, length: 0.3, volume: 0.15 });
+    },
+    // A night begins: two soft notes rising, one for the moth, one for the dawn.
+    nightStart() {
+      tone({ type: 'sine', from: 392, length: 0.4, volume: 0.14 });
+      tone({ type: 'sine', from: 523.25, at: 0.14, length: 0.5, volume: 0.14 });
+    },
+    // Ten seconds to dawn: one low bell, once per night, so the player hears
+    // the deadline coming instead of only seeing it.
+    warn() {
+      tone({ type: 'sine', from: 196, length: 0.7, volume: 0.2 });
+      tone({ type: 'sine', from: 196, at: 0.35, length: 0.7, volume: 0.12 });
+    },
     chime() {
       // A bloom rings three notes up the scale.
       [523.25, 659.25, 783.99].forEach((frequency, index) => {
@@ -144,6 +175,13 @@ export function createAudio() {
     },
     isMuted() {
       return muted;
+    },
+    // The shared context, without creating or resuming it — the music
+    // sequencer reads it to schedule on the same clock. It must never wake
+    // a muted or not-yet-started game, so this accessor neither creates
+    // nor resumes anything.
+    peekContext() {
+      return context;
     },
   };
 }
